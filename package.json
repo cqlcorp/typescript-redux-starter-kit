@@ -7,6 +7,7 @@
     "@types/node": "^8.0.26",
     "@types/react": "^16.0.5",
     "@types/react-dom": "^15.5.4",
+    "@types/react-redux": "^5.0.7",
     "app-root-path": "^2.0.1",
     "autoprefixer": "7.1.1",
     "case-sensitive-paths-webpack-plugin": "2.1.1",
@@ -101,5 +102,8 @@
   },
   "eslintConfig": {
     "extends": "react-app"
+  },
+  "devDependencies": {
+    "eslint-config-react-app": "^2.0.0"
   }
 }

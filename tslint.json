@@ -1,6 +1,7 @@
 {
     "extends": ["tslint-react"],
     "rules": {
-        
+        "jsx-self-close": false,
+        "jsx-no-lambda": false
     }
 }

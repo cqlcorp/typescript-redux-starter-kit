@@ -1,4 +1,4 @@
-import { Action as BaseAction } from 'redux';
+import { Action as BaseAction, bindActionCreators } from 'redux';
 import { all, takeEvery } from 'redux-saga/effects';
 
 export interface Action<PayloadType extends Object> extends BaseAction {
@@ -59,6 +59,12 @@ export const ReduxType = (typeName: string) => {
     }
 }
 
+export const StateDefaults = (defaults: Object) => {
+    return (constructor: Function) => {
+        constructor.prototype._baseDefaults = defaults;
+    }
+}
+
 type StringableAction = string | {
     toString: () => string
 };
@@ -66,7 +72,8 @@ type StringableAction = string | {
 export class ReduxController<State extends Object> {
     namespace: string = 'GLOBAL';
     defaults: State | {};
-    _typeName: string = '';
+    _baseDefaults: State;
+    _typeName: string;
     _actionMap: any;
     _reducerMap: any;
     _reducerActions: any;
@@ -79,7 +86,7 @@ export class ReduxController<State extends Object> {
 
     constructor(namespace: string, stateDefaults?: State) {
         this.namespace = namespace;
-        this.defaults = stateDefaults || {};
+        this.defaults = Object.assign({}, this._baseDefaults, stateDefaults);
         this.initActionCreators();
         this.initReducers();
         this.buildReducerIndex();
@@ -119,7 +126,7 @@ export class ReduxController<State extends Object> {
                 if (this._baseActionTypes[actionType] || this._creatorlessActions[actionType]) {
                     actionType = this.formatActionName(actionType);
                 }
-                
+
                 return actionType;
             });
 
@@ -152,16 +159,25 @@ export class ReduxController<State extends Object> {
                 [actionType]: this.formatActionName(actionType)
             }
             const method = this[methodName];
-            this[methodName] = (...args: any[]) => ({
-                type: this.formatActionName(actionType),
-                ...(method(...args) || {})
-            });
+            const context = this;
+            this[methodName] = (...args: any[]) => {
+                const result = method.apply(context, args);
+                const actionName = context.formatActionName(actionType);
+                console.log('Action Name', actionName);
+                console.log(context.namespace + 'context', context);
+                return {
+                    ...result,
+                    type: actionName
+                }
+            };
             this[methodName].toString = () => this.formatActionName(actionType);
         })
     }
 
     formatActionName(actionName: string): string {
-        return [this._typeName, this.namespace, actionName].join('/');
+        return [this._typeName, this.namespace, actionName]
+            .filter(item => typeof item === 'string' && item.length > 0)
+            .join('/');
     }
 
     createSaga() {
@@ -183,11 +199,26 @@ export class ReduxController<State extends Object> {
         const defaults = Object.assign({}, this.defaults, defaultsOverride) as State;
         return (state: State = defaults, action: Action<any>) => {
             const relevantReducers = this._reducerIndex[action.type];
-            return relevantReducers.reduce((nextState: State, methodName: string): State => {
-                const reducer = this[methodName];
-                return reducer(nextState, action);
-            }, state);
+            if (relevantReducers) {
+                return relevantReducers.reduce((nextState: State, methodName: string): State => {
+                    const reducer = this[methodName];
+                    return reducer(nextState, action);
+                }, state);
+            } else {
+                return state;
+            }
         }
+    }
+
+    mapToDispatch(dispatch: () => any) {
+        const actionGroup = Object.keys(this._actionCreators).reduce((actions, methodName) => {
+            return {
+                ...actions,
+                [methodName]: this[methodName]
+            }
+        }, {});
+
+        return bindActionCreators(actionGroup, dispatch)
     }
 
     formatAction<T extends Object>(payload?: T, meta?: any): Action<T> {
@@ -210,7 +241,7 @@ export class ReduxController<State extends Object> {
     }
 
     @ReduxAction('RESET')
-    resetState(newDefualts: State) {
+    resetState(newDefualts: State): Action<any> {
         newDefualts = newDefualts || this.defaults;
         return this.formatAction(Object.assign({}, this.defaults, newDefualts));
     }

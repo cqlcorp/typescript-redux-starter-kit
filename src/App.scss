@@ -1,4 +1,4 @@
-$white: white;
+@import "theme.scss";
 
 .App {
   text-align: center;
@@ -10,14 +10,36 @@ $white: white;
 }
 
 .App-header {
-  background-color: #222;
+  background-color: $fillColorDark;
   height: 150px;
   padding: 20px;
-  color: $white;
+  color: $fillColorLight;
 }
 
 .App-intro {
   font-size: large;
+}
+
+.row {
+    display: flex;
+    flex-flow: row;
+}
+
+.col {
+    display: flex;
+    flex-flow: column;
+    flex: 1;
+}
+
+.section {
+    border: 3px solid #dedede;
+    border-radius: 10px;
+    padding: 20px;
+    margin-right: 10px;
+
+    &:first-child {
+        margin-left: 10px;
+    }
 }
 
 @keyframes App-logo-spin {

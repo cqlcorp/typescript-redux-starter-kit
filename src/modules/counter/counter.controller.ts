@@ -1,18 +1,21 @@
 import { delay } from 'redux-saga';
 import { put } from 'redux-saga/effects';
-import { ReduxController, ReduxAction, Reducer, Action, Saga } from 'redux-typescript';
+import { ReduxController, ReduxAction, Reducer, Action, Saga, StateDefaults } from 'redux-controller';
 import { IncrementIntervalPayload, IncrementPayload, CounterState } from './counter.models';
 
+@StateDefaults({
+    count: 0
+} as CounterState)
 export class CounterController extends ReduxController<CounterState> {
     @ReduxAction('INCREMENT')
-    increment(count: number): Action<IncrementPayload> {
+    increment(count: number = 1): Action<IncrementPayload> {
         return this.formatAction({
-            count
+            count: count
         })
     }
 
     @ReduxAction('DECREMENT')
-    decrement(count: number) {
+    decrement(count: number = 1) {
         return this.formatAction({
             count
         })

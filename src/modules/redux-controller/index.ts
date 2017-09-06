@@ -4,5 +4,6 @@ export {
     ReduxType,
     ReduxController,
     Action,
-    Saga
+    Saga,
+    StateDefaults
 } from './redux-typescript';
