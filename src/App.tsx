@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Provider } from 'react-redux'
 import './App.scss';
 
-import { store } from './state';
+import { store, PushupActions, SitupActions } from './state';
 
 import { PushupCounter, SitupCounter } from './components';
 
@@ -24,10 +24,14 @@ class App extends React.Component {
                         <div className="pushups col section">
                             <h3>Pushups</h3>
                             <PushupCounter />
+                            <button onClick={() => store.dispatch(PushupActions.countOnInterval(1000, 1))}>Auto Count</button>
+                            <button onClick={() => store.dispatch(PushupActions.stopInterval())}>Stop Counting</button>
                         </div>
                         <div className="situps col section">
                             <h3>Situps</h3>
                             <SitupCounter />
+                            <button onClick={() => store.dispatch(SitupActions.countOnInterval(1000, 1))}>Auto Count</button>
+                            <button onClick={() => store.dispatch(SitupActions.stopInterval())}>Stop Counting</button>
                         </div>
                     </div>
                 </div>

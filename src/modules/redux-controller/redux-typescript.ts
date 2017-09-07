@@ -1,5 +1,5 @@
 import { Action as BaseAction, bindActionCreators } from 'redux';
-import { all, takeEvery } from 'redux-saga/effects';
+import { all, takeEvery, call } from 'redux-saga/effects';
 
 export interface Action<PayloadType extends Object> extends BaseAction {
     type: string,
@@ -70,19 +70,19 @@ type StringableAction = string | {
 };
 
 export class ReduxController<State extends Object> {
-    namespace: string = 'GLOBAL';
-    defaults: State | {};
-    _baseDefaults: State;
-    _typeName: string;
-    _actionMap: any;
-    _reducerMap: any;
-    _reducerActions: any;
-    _reducerIndex: any;
-    _actionCreators: any;
-    _creatorlessActions: any;
-    _baseActionTypes: any;
-    _actionTypes: any;
-    _sagas: any;
+    public namespace: string = 'GLOBAL';
+    public defaults: State | {};
+    protected _baseDefaults: State;
+    protected _typeName: string;
+    protected _actionMap: any;
+    protected _reducerMap: any;
+    protected _reducerActions: any;
+    protected _reducerIndex: any;
+    protected _actionCreators: any;
+    protected _creatorlessActions: any;
+    protected _baseActionTypes: any;
+    protected _actionTypes: any;
+    protected _sagas: any;
 
     constructor(namespace: string, stateDefaults?: State) {
         this.namespace = namespace;
@@ -92,7 +92,7 @@ export class ReduxController<State extends Object> {
         this.buildReducerIndex();
     }
 
-    buildReducerIndex() {
+    private buildReducerIndex() {
         // Build an index of reducers by action name
         this._reducerIndex = this._reducerIndex || {};
         Object.keys(this._reducerActions).forEach((methodName: string) => {
@@ -117,7 +117,7 @@ export class ReduxController<State extends Object> {
         });
     }
 
-    initReducers() {
+    private initReducers() {
         this._reducerMap = this._reducerMap || {};
         Object.keys(this._reducerMap).forEach((methodName: string) => {
             const associatedActions = this._reducerMap[methodName].map((action: StringableAction ) => {
@@ -146,7 +146,7 @@ export class ReduxController<State extends Object> {
         })
     }
 
-    initActionCreators() {
+    private initActionCreators() {
         this._actionMap = this._actionMap || {};
         Object.keys(this._actionMap).forEach((methodName: string) => {
             const actionType = this._actionMap[methodName];
@@ -163,8 +163,6 @@ export class ReduxController<State extends Object> {
             this[methodName] = (...args: any[]) => {
                 const result = method.apply(context, args);
                 const actionName = context.formatActionName(actionType);
-                console.log('Action Name', actionName);
-                console.log(context.namespace + 'context', context);
                 return {
                     ...result,
                     type: actionName
@@ -174,28 +172,32 @@ export class ReduxController<State extends Object> {
         })
     }
 
-    formatActionName(actionName: string): string {
+    public formatActionName(actionName: string): string {
         return [this._typeName, this.namespace, actionName]
             .filter(item => typeof item === 'string' && item.length > 0)
             .join('/');
     }
 
-    createSaga() {
-        return async () => {
-            const sagas = Object.keys(this._sagas).map((methodName: string) => {
-                const sagaInfo = this._sagas[methodName];
-                const context = this;
-                return function*() {
-                    yield sagaInfo.effect(context.formatActionName(sagaInfo.actionName), context[sagaInfo.methodName]);
-                }
-            });
-            return async () => {
-                await all(sagas);
+    public createSaga() {
+        const sagas = Object.keys(this._sagas).map((methodName: string) => {
+            const sagaInfo = this._sagas[methodName];
+            const context = this;
+            const actionName = context.formatActionName(sagaInfo.actionName);
+            return function*() {
+                console.log('watching for ', actionName);
+                yield sagaInfo.effect(actionName, function*(...actionArgs: any[]) {
+                    console.log('Action ' + actionName + ' called');
+                    yield context[sagaInfo.methodName].apply(context, actionArgs);
+                });
             }
+        });
+        console.log('sagas for ' + this.namespace, sagas);
+        return function*() {
+            yield all(sagas.map(saga => call(saga)));
         }
     }
 
-    createReducer(defaultsOverride?: State) {
+    public createReducer(defaultsOverride?: State) {
         const defaults = Object.assign({}, this.defaults, defaultsOverride) as State;
         return (state: State = defaults, action: Action<any>) => {
             const relevantReducers = this._reducerIndex[action.type];
@@ -210,7 +212,7 @@ export class ReduxController<State extends Object> {
         }
     }
 
-    mapToDispatch(dispatch: () => any) {
+    public mapToDispatch(dispatch: () => any) {
         const actionGroup = Object.keys(this._actionCreators).reduce((actions, methodName) => {
             return {
                 ...actions,
@@ -221,7 +223,7 @@ export class ReduxController<State extends Object> {
         return bindActionCreators(actionGroup, dispatch)
     }
 
-    formatAction<T extends Object>(payload?: T, meta?: any): Action<T> {
+    public formatAction<T extends Object>(payload?: T, meta?: any): Action<T> {
         if (!payload) {
             payload = {} as T;
         }
@@ -236,23 +238,23 @@ export class ReduxController<State extends Object> {
     // Base Actions
 
     @ReduxAction('SET')
-    setState(newState: State): Action<any> {
+    public setState(newState: State): Action<any> {
         return this.formatAction(newState)
     }
 
     @ReduxAction('RESET')
-    resetState(newDefualts: State): Action<any> {
+    public resetState(newDefualts: State): Action<any> {
         newDefualts = newDefualts || this.defaults;
         return this.formatAction(Object.assign({}, this.defaults, newDefualts));
     }
 
     @Reducer('SET')
-    setReducer(state: State, action: Action<any>): State {
+    public setReducer(state: State, action: Action<any>): State {
         return Object.assign({}, state, action.payload);
     }
 
     @Reducer('RESET')
-    resetReducer(state: State, action: Action<any>): State {
+    public resetReducer(state: State, action: Action<any>): State {
         return action.payload;
     }
 }

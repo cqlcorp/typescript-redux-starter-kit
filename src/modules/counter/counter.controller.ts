@@ -1,5 +1,5 @@
 import { delay } from 'redux-saga';
-import { put } from 'redux-saga/effects';
+import { put, takeEvery, take, cancel, fork } from 'redux-saga/effects';
 import { ReduxController, ReduxAction, Reducer, Action, Saga, StateDefaults } from 'redux-controller';
 import { IncrementIntervalPayload, IncrementPayload, CounterState } from './counter.models';
 
@@ -29,11 +29,27 @@ export class CounterController extends ReduxController<CounterState> {
         })
     }
 
-    @Saga('INTERVAL')
-    async intervalSaga(action: Action<IncrementIntervalPayload>) {
+    @ReduxAction('STOP_INTERVAL')
+    stopInterval() {
+        return this.formatAction()
+    }
+
+    @Saga('INTERVAL', takeEvery)
+    *intervalSaga(action: Action<IncrementIntervalPayload>) {
+        console.log('running interval saga');
+        const interval = yield fork([this, this.startInterval], action);
+        yield take(this.formatActionName('STOP_INTERVAL'));
+        yield cancel(interval);
+    }
+
+    *startInterval(action: Action<IncrementIntervalPayload>) {
+        console.log('this', this);
         while(true) {
-            await delay(action.payload.interval);
-            await put(this.increment(action.payload.increment));
+            console.log('iterate');
+            yield delay(action.payload.interval);
+            console.log('delayed');
+            yield put(this.increment(action.payload.increment));
+            console.log('put', put(this.increment(action.payload.increment)));
         }
     }
 
