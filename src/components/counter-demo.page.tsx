@@ -44,11 +44,13 @@ CounterDemo.defaultProps = {
 } as CounterDemoProps
 
 const mapStateToProps = (state: RootState): CounterDemoState => ({});
+
+// Manually setting up extended functionality
 const mapDispatchToProps = (dispatch: any): CounterDemoCallbacks => ({
-    onStartPushupAutoCount: () => PushupActions.countOnInterval(1000, 1),
-    onStopPushupAutoCount: () => PushupActions.stopInterval(),
-    onStartSitupAutoCount: () => SitupActions.countOnInterval(1000, 1),
-    onStopSitupAutoCount: () => SitupActions.stopInterval()
+    onStartPushupAutoCount: () => dispatch(PushupActions.countOnInterval(1000, 1)),
+    onStopPushupAutoCount: () => dispatch(PushupActions.stopInterval()),
+    onStartSitupAutoCount: () => dispatch(SitupActions.countOnInterval(1000, 1)),
+    onStopSitupAutoCount: () => dispatch(SitupActions.stopInterval())
 });
 
 export const CounterDemoPage = connect(mapStateToProps, mapDispatchToProps)(CounterDemo);

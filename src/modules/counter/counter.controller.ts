@@ -43,20 +43,15 @@ export class CounterController extends ReduxController<CounterState> {
 
     @Saga('INTERVAL', takeEvery)
     *intervalSaga(action: Action<IncrementIntervalPayload>) {
-        console.log('running interval saga');
         const interval = yield fork([this, this.startInterval], action);
         yield take(this.formatActionName('STOP_INTERVAL'));
         yield cancel(interval);
     }
 
     *startInterval(action: Action<IncrementIntervalPayload>) {
-        console.log('this', this);
         while(true) {
-            console.log('iterate');
             yield delay(action.payload.interval);
-            console.log('delayed');
             yield put(this.increment(action.payload.increment));
-            console.log('put', put(this.increment(action.payload.increment)));
         }
     }
 
