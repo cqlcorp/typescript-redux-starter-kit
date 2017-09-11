@@ -27,7 +27,6 @@ export const MenuBtn: React.SFC<MenuBtnProps> = (props: MenuBtnProps) => {
 export const Menu: React.SFC<MenuProps> = (props) => {
     const children = React.Children.map(props.children, (child: React.ReactElement<any>) => {
         if (child.type === MenuBtn) {
-            console.log('isActive', child.props.to, props.activeRoute);
             return React.cloneElement(child, {
                 active: child.props.to === props.activeRoute
             } as MenuBtnProps)

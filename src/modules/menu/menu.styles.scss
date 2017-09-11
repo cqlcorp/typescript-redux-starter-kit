@@ -1,9 +1,11 @@
+$menuColor: #dedede;
+
 .component-main-menu {
     padding-bottom: 10px;
 
     .buttons {
         display: flex;
-        background-color: #dedede;
+        background-color: $menuColor;
         justify-content: center;
         flex-flow: row;
     }
@@ -16,10 +18,10 @@
     text-decoration: none;
 
     &:hover {
-        background-color: darken(#dedede, 10);
+        background-color: darken($menuColor, 10);
     }
 
     &.active {
-        background-color: darken(#dedede, 20);
+        background-color: darken($menuColor, 20);
     }
 }
