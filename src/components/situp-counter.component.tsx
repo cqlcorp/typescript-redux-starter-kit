@@ -11,7 +11,8 @@ const select = (state: RootState): CounterState => {
 const mapDispatchToProps = (dispatch: any): CounterCallbacks => {
     return {
         onDecrement: () => dispatch(SitupActions.decrement()),
-        onIncrement: () => dispatch(SitupActions.increment())
+        onIncrement: () => dispatch(SitupActions.increment()),
+        onSetCount: (count) => dispatch(SitupActions.setCount(count))
     }
 }
 

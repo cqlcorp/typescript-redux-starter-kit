@@ -21,6 +21,13 @@ export class CounterController extends ReduxController<CounterState> {
         })
     }
 
+    @ReduxAction('SET_COUNT')
+    setCount(count: number) {
+        return this.formatAction({
+            count
+        })
+    }
+
     @ReduxAction('INTERVAL')
     countOnInterval(interval: number, increment: number = 1): Action<IncrementIntervalPayload> {
         return this.formatAction({
@@ -50,6 +57,14 @@ export class CounterController extends ReduxController<CounterState> {
             console.log('delayed');
             yield put(this.increment(action.payload.increment));
             console.log('put', put(this.increment(action.payload.increment)));
+        }
+    }
+
+    @Reducer('SET_COUNT')
+    setCountReducer(state: CounterState, action: Action<IncrementPayload>): CounterState {
+        return {
+            ...state,
+            count: action.payload.count
         }
     }
 
