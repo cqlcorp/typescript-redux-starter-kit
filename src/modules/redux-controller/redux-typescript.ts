@@ -59,7 +59,7 @@ export const ReduxType = (typeName: string) => {
     }
 }
 
-export const StateDefaults = (defaults: Object) => {
+export const StateDefaults = <T extends Object>(defaults: T) => {
     return (constructor: Function) => {
         constructor.prototype._baseDefaults = defaults;
     }
@@ -72,17 +72,17 @@ type StringableAction = string | {
 export class ReduxController<State extends Object> {
     public namespace: string = 'GLOBAL';
     public defaults: State | {};
-    protected _baseDefaults: State;
-    protected _typeName: string;
-    protected _actionMap: any;
-    protected _reducerMap: any;
-    protected _reducerActions: any;
-    protected _reducerIndex: any;
-    protected _actionCreators: any;
-    protected _creatorlessActions: any;
-    protected _baseActionTypes: any;
-    protected _actionTypes: any;
-    protected _sagas: any;
+    private _baseDefaults: State;
+    private _typeName: string;
+    private _actionMap: any;
+    private _reducerMap: any;
+    private _reducerActions: any;
+    private _reducerIndex: any;
+    private _actionCreators: any;
+    private _creatorlessActions: any;
+    private _baseActionTypes: any;
+    private _actionTypes: any;
+    private _sagas: any;
 
     constructor(namespace: string, stateDefaults?: State) {
         this.namespace = namespace;
@@ -184,14 +184,11 @@ export class ReduxController<State extends Object> {
             const context = this;
             const actionName = context.formatActionName(sagaInfo.actionName);
             return function*() {
-                console.log('watching for ', actionName);
                 yield sagaInfo.effect(actionName, function*(...actionArgs: any[]) {
-                    console.log('Action ' + actionName + ' called');
                     yield context[sagaInfo.methodName].apply(context, actionArgs);
                 });
             }
         });
-        console.log('sagas for ' + this.namespace, sagas);
         return function*() {
             yield all(sagas.map(saga => call(saga)));
         }
@@ -199,7 +196,7 @@ export class ReduxController<State extends Object> {
 
     public createReducer(defaultsOverride?: State) {
         const defaults = Object.assign({}, this.defaults, defaultsOverride) as State;
-        return (state: State = defaults, action: Action<any>) => {
+        return (state: State = defaults, action: Action<any>): State => {
             const relevantReducers = this._reducerIndex[action.type];
             if (relevantReducers) {
                 return relevantReducers.reduce((nextState: State, methodName: string): State => {

@@ -1,15 +1,18 @@
 import { combineReducers } from 'redux';
 import { CounterState } from 'counter';
 
-import { pushupReducer } from './pushups';
-import { situpReducer } from './situps';
+import { pushupReducer } from 'state/pushups';
+import { situpReducer } from 'state/situps';
+import { routeReducer, RouteState } from 'state/routing';
 
 export interface RootState {
     pushups: CounterState,
-    situps: CounterState
+    situps: CounterState,
+    currentRoute: RouteState
 }
 
 export const rootReducer = combineReducers<RootState>({
     pushups: pushupReducer,
-    situps: situpReducer
+    situps: situpReducer,
+    currentRoute: routeReducer
 });

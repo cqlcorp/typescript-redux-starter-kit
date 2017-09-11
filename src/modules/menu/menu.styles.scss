@@ -1,0 +1,25 @@
+.component-main-menu {
+    padding-bottom: 10px;
+
+    .buttons {
+        display: flex;
+        background-color: #dedede;
+        justify-content: center;
+        flex-flow: row;
+    }
+}
+
+.component-menu-button {
+    display: flex;
+    padding: 15px 20px;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+        background-color: darken(#dedede, 10);
+    }
+
+    &.active {
+        background-color: darken(#dedede, 20);
+    }
+}

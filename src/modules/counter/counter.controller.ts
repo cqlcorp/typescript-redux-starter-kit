@@ -3,9 +3,9 @@ import { put, takeEvery, take, cancel, fork } from 'redux-saga/effects';
 import { ReduxController, ReduxAction, Reducer, Action, Saga, StateDefaults } from 'redux-controller';
 import { IncrementIntervalPayload, IncrementPayload, CounterState } from './counter.models';
 
-@StateDefaults({
+@StateDefaults<CounterState>({
     count: 0
-} as CounterState)
+})
 export class CounterController extends ReduxController<CounterState> {
     @ReduxAction('INCREMENT')
     increment(count: number = 1): Action<IncrementPayload> {

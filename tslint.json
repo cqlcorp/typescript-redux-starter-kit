@@ -2,6 +2,7 @@
     "extends": ["tslint-react"],
     "rules": {
         "jsx-self-close": false,
-        "jsx-no-lambda": false
+        "jsx-no-lambda": false,
+        "jsx-curly-spacing": false
     }
 }
