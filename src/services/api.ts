@@ -1,19 +1,22 @@
 import axios from 'axios';
-import * as qs from 'qs';
-import { EnvVar } from 'modules/env-utils';
+import { extendProvider } from 'modules/middleman';
+import { axiosSagaMiddleware } from 'modules/axios-middleware';
+import { createDefaultAxiosArgs } from 'modules/http-utils';
 
+// Standard API
 const baseHttp = axios.create({
-    baseURL: EnvVar.string('API_CLIENT_PREFIX', '/api'),
-    timeout: EnvVar.number('API_TIMEOUT', 5000),
-    headers: {
-        accepts: 'application/json'
-    },
-    validateStatus: status => {
-        return status >= 200 && status < 300;
-    },
-    paramsSerializer: params => {
-        return qs.stringify(params);
-    }
+    ...createDefaultAxiosArgs()
+    // Any project-specific overrides go here
 })
 
-export default baseHttp
+// You can add any middleware here
+export const api = extendProvider(baseHttp).applyMiddleware(axiosSagaMiddleware);
+
+// Placeholder API for testing
+const basePlaceholderApi = axios.create({
+    ...createDefaultAxiosArgs(),
+    baseURL: 'https://jsonplaceholder.typicode.com'
+})
+
+// You can add any middleware here
+export const placeholderApi = extendProvider(basePlaceholderApi).applyMiddleware(axiosSagaMiddleware);

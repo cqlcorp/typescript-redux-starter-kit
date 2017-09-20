@@ -1,5 +1,5 @@
 import { Location } from 'history';
-import { ReduxController, StateDefaults, ReduxAction, Action, Reducer } from 'modules/redux-controller';
+import { ReduxController, StateDefaults, ReduxAction, StandardAction, Reducer } from 'modules/redux-controller';
 
 export interface RouteError {
     message: string
@@ -35,7 +35,7 @@ export enum RouteStatus {
 export class RouteController extends ReduxController<RouteState> {
 
     @ReduxAction('ROUTE_CHANGE')
-    routeChangeDetected(newLocation: Location): Action<RouteChangePayload> {
+    routeChangeDetected(newLocation: Location): StandardAction<RouteChangePayload> {
         return this.formatAction({
             route: newLocation.pathname,
             location: newLocation,
@@ -43,22 +43,22 @@ export class RouteController extends ReduxController<RouteState> {
     }
 
     @ReduxAction('ROUTE_LOAD')
-    load(): Action<any> {
+    load(): StandardAction<any> {
         return this.formatAction();
     }
 
     @ReduxAction('ROUTE_RESOLVE')
-    routeResolve(): Action<any> {
+    routeResolve(): StandardAction<any> {
         return this.formatAction();
     }
 
     @ReduxAction('ROUTE_ERROR')
-    routeError(e: RouteError): Action<RouteError> {
+    routeError(e: RouteError): StandardAction<RouteError> {
         return this.formatAction<RouteError>(e);
     }
 
     @Reducer('ROUTE_CHANGE')
-    routeReducer(state: RouteState, action: Action<RouteChangePayload>): RouteState {
+    routeReducer(state: RouteState, action: StandardAction<RouteChangePayload>): RouteState {
         return {
             ...state,
             currentRoute: action.payload.route,
@@ -69,7 +69,7 @@ export class RouteController extends ReduxController<RouteState> {
         }
     }
 
-    routeLoadReducer(state: RouteState, action: Action<any>): RouteState {
+    routeLoadReducer(state: RouteState, action: StandardAction<any>): RouteState {
         return {
             ...state,
             routeBusy: true,
@@ -79,7 +79,7 @@ export class RouteController extends ReduxController<RouteState> {
     }
 
     @Reducer('ROUTE_RESOLVE')
-    routeResolveReducer(state: RouteState, action: Action<any>): RouteState {
+    routeResolveReducer(state: RouteState, action: StandardAction<any>): RouteState {
         return {
             ...state,
             routeStatus: RouteStatus.READY,
@@ -89,7 +89,7 @@ export class RouteController extends ReduxController<RouteState> {
     }
 
     @Reducer('ROUTE_ERROR')
-    routeErrorReducer(state: RouteState, action: Action<RouteError>): RouteState {
+    routeErrorReducer(state: RouteState, action: StandardAction<RouteError>): RouteState {
         return {
             ...state,
             routeError: action.payload,

@@ -7,3 +7,4 @@ export { MainMenu } from './main-menu.component';
 // Pages
 export { IntroPage } from './intro.page';
 export { CounterDemoPage } from './counter-demo.page';
+export { BlogPage } from './blog.page';

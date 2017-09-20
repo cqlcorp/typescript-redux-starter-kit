@@ -1,0 +1,12 @@
+.component-blog-post {
+    &:not(:first-child) {
+        padding-top: 25px;
+    }
+    .blog-author {
+        padding-top: 25px;
+    }
+
+    .blog-title {
+        line-height: .9;
+    }
+}

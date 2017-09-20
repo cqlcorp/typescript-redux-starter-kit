@@ -1,0 +1,52 @@
+.component-author-blurb {
+    display: flex;
+    flex-flow: row;
+    border: 2px solid #dedede;
+    border-radius: 10px;
+    overflow: hidden;
+
+    .blurb-text {
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        border-right: 2px solid #dedede;
+        min-width: 10%;
+    }
+
+    .blurb-author {
+        display: flex;
+        flex: 1;
+        flex-flow: column;
+
+        .author-title {
+            background-color: #dedede;
+            padding: 5px;
+            font-weight: bold;
+            text-align: left;
+
+            .author-name {
+                padding-right: 1em;
+            }
+        }
+
+        .author-org {
+            text-align: left;
+
+            .org-title {
+                background-color: lighten(#dedede, 5);
+                padding: 5px;
+            }
+
+            .org-description {
+                padding: 10px;
+            }
+
+            .org-subheader {
+                font-size: 10pt;
+                font-style: italic;
+            }
+        }
+    }
+}

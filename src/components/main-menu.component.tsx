@@ -19,6 +19,7 @@ const MainMenuComponent: React.SFC<MainMenuProps> = (props) => {
         <Menu id="main-menu" activeRoute={props.currentRoute}>
             <MenuBtn to={routes.HOME} >Home</MenuBtn>
             <MenuBtn to={routes.COUNTER_DEMO} >Counter Demo</MenuBtn>
+            <MenuBtn to={routes.BLOG} >Blog</MenuBtn>
         </Menu>
     )
 }

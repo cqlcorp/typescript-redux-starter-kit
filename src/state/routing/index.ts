@@ -1,5 +1,8 @@
 import { put, fork } from 'redux-saga/effects';
 import { router } from 'redux-saga-router';
+import { routes } from 'constants/routes';
+import { trackProgress } from 'modules/redux-requests';
+import { loadPostRoute } from 'state/posts';
 
 // import { routes } from 'constants/routes';
 import { RouteController, history } from 'modules/route-utils'
@@ -16,6 +19,7 @@ export const routerOptions = {
 }
 
 export const routeSagas = {
+    [routes.BLOG]: trackProgress(loadPostRoute, routes.BLOG),
     '*': function*() {
         yield put(RouteActions.routeResolve());
     }

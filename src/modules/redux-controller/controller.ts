@@ -1,12 +1,6 @@
-import { Action as BaseAction, bindActionCreators } from 'redux';
+import { bindActionCreators } from 'redux';
 import { all, takeEvery, call } from 'redux-saga/effects';
-
-export interface Action<PayloadType extends Object> extends BaseAction {
-    type: string,
-    payload: PayloadType,
-    meta?: any,
-    error?: any
-}
+import { StandardAction } from './controller.models';
 
 export const ReduxAction = (actionName: string) => {
     return function (target: any, methodName: string, descriptor: PropertyDescriptor) {
@@ -53,6 +47,13 @@ export const Reducer = (...actions: any[]) => {
     }
 }
 
+export const GlobalReducer = (target: any, methodName: string, descriptor: PropertyDescriptor) => {
+    target._reducerMap = {
+        ...target._reducerMap,
+        [methodName]: ['*']
+    }
+}
+
 export const ReduxType = (typeName: string) => {
     return (constructor: Function) => {
         constructor.prototype._typeName = typeName;
@@ -61,7 +62,7 @@ export const ReduxType = (typeName: string) => {
 
 export const StateDefaults = <T extends Object>(defaults: T) => {
     return (constructor: Function) => {
-        constructor.prototype._baseDefaults = defaults;
+        constructor.prototype.defaults = defaults;
     }
 }
 
@@ -71,8 +72,7 @@ type StringableAction = string | {
 
 export class ReduxController<State extends Object> {
     public namespace: string = 'GLOBAL';
-    public defaults: State | {};
-    private _baseDefaults: State;
+    public defaults: State;
     private _typeName: string;
     private _actionMap: any;
     private _reducerMap: any;
@@ -86,7 +86,9 @@ export class ReduxController<State extends Object> {
 
     constructor(namespace: string, stateDefaults?: State) {
         this.namespace = namespace;
-        this.defaults = Object.assign({}, this._baseDefaults, stateDefaults);
+        if (stateDefaults) {
+            this.defaults = stateDefaults;
+        }
         this.initActionCreators();
         this.initReducers();
         this.buildReducerIndex();
@@ -135,12 +137,17 @@ export class ReduxController<State extends Object> {
                 [methodName]: associatedActions || []
             }
 
-            const oldReducer = this[methodName]
-            this[methodName] = (state: State, action: Action<any>) : State => {
-                if (associatedActions.indexOf(action.type) >= 0) {
-                    return oldReducer(state, action);
-                } else {
-                    return state;
+            const isGlobal = associatedActions.length === 1 && associatedActions[0] === '*';
+            // If it's not a global reducer, replace the reducer with a filtered reducer
+            if (!isGlobal) {
+                const oldReducer = this[methodName]
+                this[methodName] = (state: State, action: StandardAction<any>) : State => {
+                    const isAssociatedAction = associatedActions.indexOf(action.type) >= 0;
+                    if (isAssociatedAction) {
+                        return oldReducer(state, action);
+                    } else {
+                        return state;
+                    }
                 }
             }
         })
@@ -173,12 +180,18 @@ export class ReduxController<State extends Object> {
     }
 
     public formatActionName(actionName: string): string {
-        return [this._typeName, this.namespace, actionName]
+        return [this.formatNamespace(), actionName]
             .filter(item => typeof item === 'string' && item.length > 0)
             .join('/');
     }
 
-    public createSaga() {
+    public formatNamespace() {
+        return [this._typeName, this.namespace]
+            .filter(item => typeof item === 'string' && item.length > 0)
+            .join('/');
+    }
+
+    public createSaga(): () => IterableIterator<any> {
         const sagas = Object.keys(this._sagas).map((methodName: string) => {
             const sagaInfo = this._sagas[methodName];
             const context = this;
@@ -194,14 +207,24 @@ export class ReduxController<State extends Object> {
         }
     }
 
-    public createReducer(defaultsOverride?: State) {
-        const defaults = Object.assign({}, this.defaults, defaultsOverride) as State;
-        return (state: State = defaults, action: Action<any>): State => {
-            const relevantReducers = this._reducerIndex[action.type];
+    public createReducer(defaultsOverride?: State): (state: State, action: StandardAction<any>) => State {
+        const defaults = defaultsOverride || this.defaults;
+        return (state: State = defaults, action: StandardAction<any>): State => {
+            const globalReducers = this._reducerIndex['*'] || [];
+            const localReducers = this._reducerIndex[action.type] || [];
+            const relevantReducers = [...localReducers, ...globalReducers];
             if (relevantReducers) {
                 return relevantReducers.reduce((nextState: State, methodName: string): State => {
                     const reducer = this[methodName];
-                    return reducer(nextState, action);
+                    const newState = reducer(nextState, action);
+                    if (newState === undefined) {
+                        const culprit = [this.constructor && this.constructor.name, methodName]
+                            .filter(item => !!item)
+                            .join('.');
+                        throw new Error(`Reducer "${culprit}" in namespace ${this.formatNamespace()} returned undefined during initialization. If the state passed to the reducer is undefined, you must explicitly return the initial state. The initial state may not be undefined. If you don't want to set a value for this reducer, you can use null instead of undefined.`);
+                    } else {
+                        return newState;
+                    }
                 }, state);
             } else {
                 return state;
@@ -209,7 +232,7 @@ export class ReduxController<State extends Object> {
         }
     }
 
-    public mapToDispatch(dispatch: () => any) {
+    public mapToDispatch(dispatch: () => any): Object {
         const actionGroup = Object.keys(this._actionCreators).reduce((actions, methodName) => {
             return {
                 ...actions,
@@ -220,7 +243,7 @@ export class ReduxController<State extends Object> {
         return bindActionCreators(actionGroup, dispatch)
     }
 
-    public formatAction<T extends Object>(payload?: T, meta?: any): Action<T> {
+    public formatAction<T extends Object>(payload?: T, meta?: any): StandardAction<T> {
         if (!payload) {
             payload = {} as T;
         }
@@ -235,23 +258,23 @@ export class ReduxController<State extends Object> {
     // Base Actions
 
     @ReduxAction('SET')
-    public setState(newState: State): Action<any> {
+    public setState(newState: State): StandardAction<any> {
         return this.formatAction(newState)
     }
 
     @ReduxAction('RESET')
-    public resetState(newDefualts: State): Action<any> {
+    public resetState(newDefualts: State): StandardAction<any> {
         newDefualts = newDefualts || this.defaults;
         return this.formatAction(Object.assign({}, this.defaults, newDefualts));
     }
 
     @Reducer('SET')
-    public setReducer(state: State, action: Action<any>): State {
+    public setReducer(state: State, action: StandardAction<any>): State {
         return Object.assign({}, state, action.payload);
     }
 
     @Reducer('RESET')
-    public resetReducer(state: State, action: Action<any>): State {
+    public resetReducer(state: State, action: StandardAction<any>): State {
         return action.payload;
     }
 }

@@ -1,14 +1,15 @@
 import { delay } from 'redux-saga';
 import { put, takeEvery, take, cancel, fork } from 'redux-saga/effects';
-import { ReduxController, ReduxAction, Reducer, Action, Saga, StateDefaults } from 'redux-controller';
+import { ReduxController, ReduxAction, Reducer, StandardAction, Saga, StateDefaults } from 'redux-controller';
 import { IncrementIntervalPayload, IncrementPayload, CounterState } from './counter.models';
 
 @StateDefaults<CounterState>({
     count: 0
 })
 export class CounterController extends ReduxController<CounterState> {
+
     @ReduxAction('INCREMENT')
-    increment(count: number = 1): Action<IncrementPayload> {
+    increment(count: number = 1): StandardAction<IncrementPayload> {
         return this.formatAction({
             count: count
         })
@@ -29,7 +30,7 @@ export class CounterController extends ReduxController<CounterState> {
     }
 
     @ReduxAction('INTERVAL')
-    countOnInterval(interval: number, increment: number = 1): Action<IncrementIntervalPayload> {
+    countOnInterval(interval: number, increment: number = 1): StandardAction<IncrementIntervalPayload> {
         return this.formatAction({
             interval,
             increment
@@ -42,13 +43,13 @@ export class CounterController extends ReduxController<CounterState> {
     }
 
     @Saga('INTERVAL', takeEvery)
-    *intervalSaga(action: Action<IncrementIntervalPayload>) {
+    *intervalSaga(action: StandardAction<IncrementIntervalPayload>) {
         const interval = yield fork([this, this.startInterval], action);
         yield take(this.formatActionName('STOP_INTERVAL'));
         yield cancel(interval);
     }
 
-    *startInterval(action: Action<IncrementIntervalPayload>) {
+    *startInterval(action: StandardAction<IncrementIntervalPayload>) {
         while(true) {
             yield delay(action.payload.interval);
             yield put(this.increment(action.payload.increment));
@@ -56,7 +57,7 @@ export class CounterController extends ReduxController<CounterState> {
     }
 
     @Reducer('SET_COUNT')
-    setCountReducer(state: CounterState, action: Action<IncrementPayload>): CounterState {
+    setCountReducer(state: CounterState, action: StandardAction<IncrementPayload>): CounterState {
         return {
             ...state,
             count: action.payload.count
@@ -64,7 +65,7 @@ export class CounterController extends ReduxController<CounterState> {
     }
 
     @Reducer('INCREMENT')
-    incrementReducer(state: CounterState, action: Action<IncrementPayload>): CounterState {
+    incrementReducer(state: CounterState, action: StandardAction<IncrementPayload>): CounterState {
         return {
             ...state,
             count: state.count + action.payload.count
@@ -72,7 +73,7 @@ export class CounterController extends ReduxController<CounterState> {
     }
 
     @Reducer('DECREMENT')
-    decrementReducer(state: CounterState, action: Action<IncrementPayload>): CounterState {
+    decrementReducer(state: CounterState, action: StandardAction<IncrementPayload>): CounterState {
         return {
             ...state,
             count: state.count - action.payload.count
