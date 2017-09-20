@@ -1,6 +1,14 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "module": "esnext"
-  }
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "paths": {
+            "*": [
+                "*",
+                "src/modules/*",
+                "src/*"
+            ]
+        }
+    }
 }
