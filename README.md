@@ -12,7 +12,7 @@ This project contains the following features, in addition to the base React Crea
 
 1. Clone this repository with `git clone git@github.com:cqlcorp/typescript-redux-starter-kit.git'
 2. Install all dependencies with `npm install`
-3. You can then run any of the [available scripts](#available-scripts)
+3. You can then run any of the [available scripts](#available-scripts) or just `npm start` to jump right in. Don't forget to test! You can also start the test watcher with `npm test`
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
