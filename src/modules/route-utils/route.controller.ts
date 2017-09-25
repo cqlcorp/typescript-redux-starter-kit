@@ -1,5 +1,6 @@
 import { Location } from 'history';
 import { ReduxController, StateDefaults, ReduxAction, StandardAction, Reducer } from 'modules/redux-controller';
+import { history } from './history';
 
 export interface RouteError {
     message: string
@@ -16,7 +17,7 @@ export interface RouteChangePayload {
 }
 
 @StateDefaults<RouteState>({
-    currentRoute: '/',
+    currentRoute: history.location.pathname,
     currentLocation: null,
 })
 export class RouteController extends ReduxController<RouteState> {
