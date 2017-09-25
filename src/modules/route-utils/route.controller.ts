@@ -1,4 +1,5 @@
 import { Location } from 'history';
+import * as qs from 'qs';
 import { ReduxController, StateDefaults, ReduxAction, StandardAction, Reducer } from 'modules/redux-controller';
 import { history } from './history';
 
@@ -8,7 +9,10 @@ export interface RouteError {
 
 export interface RouteState {
     currentRoute: string,
-    currentLocation: Location | null
+    params: Object,
+    hash: string,
+    search: string,
+    url: string
 }
 
 export interface RouteChangePayload {
@@ -16,10 +20,17 @@ export interface RouteChangePayload {
     location: Location
 }
 
-@StateDefaults<RouteState>({
-    currentRoute: history.location.pathname,
-    currentLocation: null,
-})
+export function parseRouteState(location: Location): RouteState {
+    return {
+        currentRoute: location.pathname,
+        params: qs.parse(location.search.replace(/^\?/, '')),
+        hash: location.hash,
+        search: location.search,
+        url: history.createHref(location)
+    }
+}
+
+@StateDefaults<RouteState>(parseRouteState(history.location))
 export class RouteController extends ReduxController<RouteState> {
 
     @ReduxAction('ROUTE_CHANGE')
@@ -34,8 +45,7 @@ export class RouteController extends ReduxController<RouteState> {
     routeReducer(state: RouteState, action: StandardAction<RouteChangePayload>): RouteState {
         return {
             ...state,
-            currentRoute: action.payload.route,
-            currentLocation: action.payload.location
+            ...parseRouteState(action.payload.location)
         }
     }
 }

@@ -58,9 +58,10 @@ export class CounterController extends ReduxController<CounterState> {
 
     @Reducer('SET_COUNT')
     setCountReducer(state: CounterState, action: StandardAction<IncrementPayload>): CounterState {
+        const count = isNaN(action.payload.count) ? 0 : action.payload.count;
         return {
             ...state,
-            count: action.payload.count
+            count
         }
     }
 

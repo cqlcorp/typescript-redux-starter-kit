@@ -10,7 +10,7 @@ export interface TrackerAction extends Action {
 
 export interface TrackerInstance {
     busy: boolean,
-    error: Object | undefined
+    error?: Object | undefined
 }
 
 export interface TrackerState {

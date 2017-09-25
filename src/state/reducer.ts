@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import { combineReducers, ReducersMapObject } from 'redux';
 import { CounterState } from 'counter';
 import { trackerReducer, TrackerState } from 'modules/redux-requests';
 
@@ -17,11 +17,13 @@ export interface RootState {
     users: User[],
 }
 
-export const rootReducer = combineReducers<RootState>({
+export const reducers: ReducersMapObject = {
     pushups: pushupReducer,
     situps: situpReducer,
     currentRoute: routeReducer,
     requests: trackerReducer,
     posts: postReducer,
     users: userReducer
-});
+}
+
+export const rootReducer = combineReducers<RootState>(reducers);
