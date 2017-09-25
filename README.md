@@ -1,3 +1,19 @@
+# Typescript Redux Starter Kit
+
+This project contains the following features, in addition to the base React Create App (with TypeScript) features.
+
+- Next-Generation TypeScript (Generators, rest spread, etc.)
+- Sass
+- Environment-variable-based config
+- Redux Controllers - A proposal for creating re-usable and extendable redux code
+- Axios with middleware - A proposal for extending Axios (or any other provider) with middleware
+
+## Quick Start
+
+1. Clone this repository with `git clone git@github.com:cqlcorp/typescript-redux-starter-kit.git'
+2. Install all dependencies with `npm install`
+3. You can then run any of the [available scripts](#available-scripts)
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
@@ -1760,7 +1776,7 @@ If you’re using [Apache HTTP Server](https://httpd.apache.org/), you need to c
     RewriteRule ^ index.html [QSA,L]
 ```
 
-It will get copied to the `build` folder when you run `npm run build`. 
+It will get copied to the `build` folder when you run `npm run build`.
 
 If you’re using [Apache Tomcat](http://tomcat.apache.org/), you need to follow [this Stack Overflow answer](https://stackoverflow.com/a/41249464/4878474).
 
