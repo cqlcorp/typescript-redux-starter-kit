@@ -1,11 +1,9 @@
 import { fork } from 'redux-saga/effects';
 import { router } from 'redux-saga-router';
-
-// import { routes } from 'constants/routes';
 import { RouteController, history } from 'modules/route-utils'
-export { RouteState, syncHistoryWithStore } from 'modules/route-utils';
 import { routeSagas } from './route.saga';
 
+export { RouteState, syncHistoryWithStore } from 'modules/route-utils';
 export const RouteActions = new RouteController('ROUTER');
 export const routeReducer = RouteActions.createReducer();
 
