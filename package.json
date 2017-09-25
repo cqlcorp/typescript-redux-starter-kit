@@ -10,6 +10,7 @@
         "@types/react-dom": "^15.5.4",
         "@types/react-redux": "^5.0.7",
         "@types/react-router-dom": "^4.0.7",
+        "@types/react-router-redux": "^5.0.8",
         "app-root-path": "^2.0.1",
         "autoprefixer": "7.1.1",
         "axios": "^0.16.2",
@@ -39,6 +40,7 @@
         "react-error-overlay": "^1.0.8",
         "react-redux": "^5.0.6",
         "react-router-dom": "^4.2.2",
+        "react-router-redux": "^5.0.0-alpha.6",
         "redux": "^3.7.2",
         "redux-saga": "^0.15.6",
         "redux-saga-router": "^2.1.0",
@@ -120,6 +122,9 @@
         "extends": "react-app"
     },
     "devDependencies": {
-        "eslint-config-react-app": "^2.0.0"
+        "@types/enzyme": "^2.8.8",
+        "enzyme": "^2.9.1",
+        "eslint-config-react-app": "^2.0.0",
+        "react-test-renderer": "^15.6.1"
     }
 }

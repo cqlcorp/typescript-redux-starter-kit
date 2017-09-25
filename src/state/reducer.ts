@@ -4,9 +4,9 @@ import { trackerReducer, TrackerState } from 'modules/redux-requests';
 
 import { pushupReducer } from 'state/pushups';
 import { situpReducer } from 'state/situps';
-import { routeReducer, RouteState } from 'state/routing';
 import { postReducer, Post } from 'state/posts';
 import { User, userReducer } from 'state/users';
+import { RouteState, routeReducer } from 'state/routing';
 
 export interface RootState {
     pushups: CounterState,

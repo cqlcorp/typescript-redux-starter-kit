@@ -4,6 +4,9 @@
         "jsx-self-close": false,
         "jsx-no-lambda": false,
         "jsx-curly-spacing": false,
-        "jsx-no-multiline-js": false
+        "jsx-no-multiline-js": false,
+        "no-unused-variable": {
+            "severity": "warn"
+        }
     }
 }

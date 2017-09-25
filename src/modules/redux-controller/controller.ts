@@ -70,6 +70,7 @@ type StringableAction = string | {
     toString: () => string
 };
 
+@StateDefaults({})
 export class ReduxController<State extends Object> {
     public namespace: string = 'GLOBAL';
     public defaults: State;
@@ -207,9 +208,9 @@ export class ReduxController<State extends Object> {
         }
     }
 
-    public createReducer(defaultsOverride?: State): (state: State, action: StandardAction<any>) => State {
+    public createReducer(defaultsOverride?: State): (state: State | undefined, action: StandardAction<any>) => State {
         const defaults = defaultsOverride || this.defaults;
-        return (state: State = defaults, action: StandardAction<any>): State => {
+        return (state: State | undefined = defaults, action: StandardAction<any>): State => {
             const globalReducers = this._reducerIndex['*'] || [];
             const localReducers = this._reducerIndex[action.type] || [];
             const relevantReducers = [...localReducers, ...globalReducers];
